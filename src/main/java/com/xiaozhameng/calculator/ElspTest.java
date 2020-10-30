@@ -2,13 +2,13 @@ package com.xiaozhameng.calculator;
 
 
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import com.xiaozhameng.calculator.ele.Node;
+import org.junit.Test;
 
-import static com.xiaodai.asset.test.elsp.ExpCalculateUtils.*;
+import java.math.BigDecimal;
+import java.util.*;
+
+import static com.xiaozhameng.calculator.ExpCalculateUtils.*;
 
 /**
  * 功能描述：java 代码解决表达式
@@ -28,7 +28,7 @@ public class ElspTest {
 
     @Test
     public void testSuffixCheck() {
-        Map<String, BigDecimal> checkMap = Maps.newHashMap();
+        Map<String, BigDecimal> checkMap = new HashMap<>(16);
 
         // 带括号，括号开头，括号结尾
         checkMap.put("(20+100/2)-40*(10/2)", new BigDecimal("-130"));
