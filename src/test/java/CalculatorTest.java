@@ -47,6 +47,28 @@ public class CalculatorTest {
     }
 
     @Test
+    public void checkByTestCase(){
+        Map<String, BigDecimal> checkMap = new HashMap<>(16);
+
+        // 带括号，括号开头，括号结尾
+        checkMap.put("(20+100/2)-40*(10/2)", new BigDecimal("-130"));
+        // 带括号，开头是数字
+        checkMap.put("100-20+5*4 + (20+10) / 5", new BigDecimal("106"));
+        // 没有括号
+        checkMap.put("100+10-20*3/6", new BigDecimal("100"));
+
+        // 不断完善添加的测试用例
+        checkMap.put("100/2", new BigDecimal("50"));
+
+        for (String exp : checkMap.keySet()) {
+            log.info("***********************");
+            ArrayList<Node> nodes = resolveExp(exp);
+            BigDecimal val = calculate(nodes);
+            log.info("表达式计算值 = {}, 期望值 = {}", val, checkMap.get(exp));
+        }
+    }
+
+    @Test
     public void testCalculator() {
         String exp = "ROUND(1000*ROUND(0.7/360,7)*1.5*29,2)";
         log.info("原始表达式 = {}", exp);
