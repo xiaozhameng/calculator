@@ -2,7 +2,6 @@ package com.xiaozhameng.calculator;
 
 
 import com.xiaozhameng.calculator.ele.*;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,17 +17,6 @@ import java.util.*;
 public class ExpCalculateUtils {
 
     static Logger logger = LoggerFactory.getLogger(ExpCalculateUtils.class);
-
-    @Test
-    public void test() {
-        String exp = "ROUND(1000*ROUND(0.07/360,6)*1.5*29,2)";
-        ArrayList<Node> nodes1 = resolveExp(exp);
-        System.out.println(logNodes(nodes1));
-
-        exp = "(20+100/2)-40*(10/2)";
-        ArrayList<Node> nodes = resolveExp(exp);
-        System.out.println(logNodes(nodes));
-    }
 
     /**
      * 计算
@@ -86,7 +74,7 @@ public class ExpCalculateUtils {
                     logger.info("计算结果入栈 = {}", logNodes(stack));
                 } else {
                     logger.info("子集合是一个表达式 = {}， 直接调用计算即可", logNodes(subList));
-                    BigDecimal val = calculateBySuffixExp(subList);
+                    BigDecimal val = calculateBySuffixExp(generateSuffixExp(subList));
                     // 将计算结果压入到栈中
                     Node tempNode = Node.builder()
                             .exp(val.toString())
@@ -99,11 +87,9 @@ public class ExpCalculateUtils {
 
         // 最后需要计算的表达式
         logger.info("最后需要计算的表达式 = {}", logNodes(stack));
-        LinkedList<Node> temp = new LinkedList<>();
-        while (stack.isEmpty()) {
-            temp.add(stack.pop());
-        }
-        return calculate(temp);
+        Node[] lastSubNodes = new Node[stack.size()];
+        stack.copyInto(lastSubNodes);
+        return calculateBySuffixExp(generateSuffixExp(lastSubNodes));
     }
 
     /**
@@ -188,56 +174,81 @@ public class ExpCalculateUtils {
 
         // 遍历表达式
         for (Node node : nodes) {
-            if (NodeType.NUMERICAL.equals(node.getType())) {
-                // 如果是操作数，将其压入到栈中
-                suffixList.add(node);
-            } else if (NodeType.OPERATOR.equals(node.getType())) {
-                if (opStack.isEmpty()
-                        || opStack.peek().getExp().equals(String.valueOf(Mark.LEFT_BRACE.getCode()))) {
-                    // 如果运算符栈为空，或者栈顶元素是左括号，则将该运算符入栈
-                    opStack.push(node);
-                    continue;
-                }
-
-                // 如果优先级比栈顶元素优先级高，也将运算符压入到运算符栈
-                Node topNode = opStack.peek();
-                if (Operator.getByCode(node.getExp()).getLevel() > Operator.getByCode(topNode.getExp()).getLevel()) {
-                    opStack.push(node);
-                    continue;
-                }
-
-                // 弹出栈顶运算符，输出到线性表，并循环判断
-                Node pop = opStack.pop();
-                suffixList.add(pop);
-                while (!opStack.isEmpty() && opStack.peek().getExp().equals(String.valueOf(Mark.LEFT_BRACE.getCode()))) {
-                    Node peek = opStack.peek();
-                    if (NodeType.OPERATOR.equals(peek.getType()) && Operator.getByCode(node.getExp()).getLevel() <= Operator.getByCode(peek.getExp()).getLevel()) {
-                        suffixList.add(opStack.pop());
-                    }
-                }
-                opStack.push(node);
-            } else if (NodeType.MARK.equals(node.getType())) {
-                if (Mark.LEFT_BRACE.equals(Mark.getByCode(node.getExp()))) {
-                    opStack.push(node);
-                } else if (Mark.RIGHT_BRACE.equals(Mark.getByCode(node.getExp()))) {
-                    while (!opStack.isEmpty()) {
-                        // 直到遇到左括号为止
-                        if (Mark.LEFT_BRACE.equals(Mark.getByCode(opStack.peek().getExp()))) {
-                            opStack.pop();
-                            break;
-                        }
-                        suffixList.add(opStack.pop());
-                    }
-                }
-            } else {
-                throw new RuntimeException("未能正确解析的标识 = " + node.getExp());
-            }
+            doGenerate(node, suffixList, opStack);
         }
         // 将栈中的元素顺序出栈到后缀表达式队列中
         while (!opStack.isEmpty()) {
             suffixList.add(opStack.pop());
         }
         return suffixList;
+    }
+
+    /**
+     * 中缀表达式转后缀表达式
+     */
+    public static List<Node> generateSuffixExp(Node[] nodes) {
+        Stack<Node> opStack = new Stack<>();
+        List<Node> suffixList = new LinkedList<>();
+
+        // 遍历表达式
+        for (Node node : nodes) {
+            doGenerate(node, suffixList, opStack);
+        }
+        // 将栈中的元素顺序出栈到后缀表达式队列中
+        while (!opStack.isEmpty()) {
+            suffixList.add(opStack.pop());
+        }
+        return suffixList;
+    }
+
+    /**
+     * 中缀表达式转后缀表达式
+     */
+    private static void doGenerate(Node node,List<Node> suffixList,Stack<Node> opStack){
+        if (NodeType.NUMERICAL.equals(node.getType())) {
+            // 如果是操作数，将其压入到栈中
+            suffixList.add(node);
+        } else if (NodeType.OPERATOR.equals(node.getType())) {
+            if (opStack.isEmpty()
+                    || opStack.peek().getExp().equals(String.valueOf(Mark.LEFT_BRACE.getCode()))) {
+                // 如果运算符栈为空，或者栈顶元素是左括号，则将该运算符入栈
+                opStack.push(node);
+                return;
+            }
+
+            // 如果优先级比栈顶元素优先级高，也将运算符压入到运算符栈
+            Node topNode = opStack.peek();
+            if (Operator.getByCode(node.getExp()).getLevel() > Operator.getByCode(topNode.getExp()).getLevel()) {
+                opStack.push(node);
+                return;
+            }
+
+            // 弹出栈顶运算符，输出到线性表，并循环判断
+            Node pop = opStack.pop();
+            suffixList.add(pop);
+            while (!opStack.isEmpty() && opStack.peek().getExp().equals(String.valueOf(Mark.LEFT_BRACE.getCode()))) {
+                Node peek = opStack.peek();
+                if (NodeType.OPERATOR.equals(peek.getType()) && Operator.getByCode(node.getExp()).getLevel() <= Operator.getByCode(peek.getExp()).getLevel()) {
+                    suffixList.add(opStack.pop());
+                }
+            }
+            opStack.push(node);
+        } else if (NodeType.MARK.equals(node.getType())) {
+            if (Mark.LEFT_BRACE.equals(Mark.getByCode(node.getExp()))) {
+                opStack.push(node);
+            } else if (Mark.RIGHT_BRACE.equals(Mark.getByCode(node.getExp()))) {
+                while (!opStack.isEmpty()) {
+                    // 直到遇到左括号为止
+                    if (Mark.LEFT_BRACE.equals(Mark.getByCode(opStack.peek().getExp()))) {
+                        opStack.pop();
+                        break;
+                    }
+                    suffixList.add(opStack.pop());
+                }
+            }
+        } else {
+            throw new RuntimeException("未能正确解析的标识 = " + node.getExp());
+        }
     }
 
     /**
@@ -266,6 +277,31 @@ public class ExpCalculateUtils {
         return result.pop();
     }
 
+    /**
+     * 根据后缀表达式计算值
+     * <p>
+     * 从左至右扫描表达式
+     * 遇到数字时，将数字压入堆栈
+     * 遇到运算符时，弹出栈顶的两个数，用运算符对它们做相应的计算（次顶元素 op 栈顶元素），并将结果入栈；
+     * 重复上述过程直到表达式最右端，最后运算得出的值即为表达式的结果
+     */
+    public static BigDecimal calculateBySuffixExp(Node[] nodes) {
+        Stack<BigDecimal> result = new Stack<>();
+        for (Node node : nodes) {
+            if (NodeType.NUMERICAL.equals(node.getType())) {
+                result.push(new BigDecimal(node.getExp()));
+            }
+            if (NodeType.OPERATOR.equals(node.getType())) {
+                BigDecimal top1 = result.pop();
+                BigDecimal top2 = result.pop();
+
+                // 运算次顶的元素和栈顶的元素
+                BigDecimal res = Operator.getByCode(node.getExp()).calculate(top2, top1);
+                result.push(res);
+            }
+        }
+        return result.pop();
+    }
 
     /**
      * 表达式输出打印

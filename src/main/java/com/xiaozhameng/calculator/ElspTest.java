@@ -37,6 +37,9 @@ public class ElspTest {
         // 没有括号
         checkMap.put("100+10-20*3/6", new BigDecimal("100"));
 
+        // 不断完善添加的测试用例
+        checkMap.put("100/2", new BigDecimal("50"));
+
         for (String exp : checkMap.keySet()) {
             logger.info("***********************");
             logger.info("原表达式 = {}", exp);
@@ -67,7 +70,7 @@ public class ElspTest {
     }
 
     public static void main(String[] args) {
-        String exp = "ROUND(1000*ROUND(0.07/360,7)*1.5*29,2)";
+        String exp = "ROUND(1000*ROUND(0.7/360,7)*1.5*29,2)";
         logger.info("原始表达式 = {}", exp);
         ArrayList<Node> nodes = resolveExp(exp);
         logger.info("转换后表达式 = {}", logNodes(nodes));
