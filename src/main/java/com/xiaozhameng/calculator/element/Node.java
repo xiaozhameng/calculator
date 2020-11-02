@@ -1,4 +1,4 @@
-package com.xiaozhameng.calculator.ele;
+package com.xiaozhameng.calculator.element;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * 表达式中某个元素的抽象
- * @author qiaofengjun
+ * @author xiaozhameng
  * @date 2020/09/26
  */
 @Data

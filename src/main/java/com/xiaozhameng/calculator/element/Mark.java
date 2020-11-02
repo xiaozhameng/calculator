@@ -1,9 +1,9 @@
-package com.xiaozhameng.calculator.ele;
+package com.xiaozhameng.calculator.element;
 
 
 /**
  * 符号的定义
- * @author qiaofengjun
+ * @author xiaozhameng
  * @date 2020/09/26
  */
 public enum Mark {

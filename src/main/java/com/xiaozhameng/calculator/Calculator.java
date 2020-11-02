@@ -1,7 +1,7 @@
 package com.xiaozhameng.calculator;
 
 
-import com.xiaozhameng.calculator.ele.*;
+import com.xiaozhameng.calculator.element.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,12 +11,12 @@ import java.util.*;
 /**
  * 功能描述：表达式计算工具类
  *
- * @author: qiaofengjun
+ * @author: xiaozhameng
  * @date: 2020/9/28 5:09 下午
  */
-public class ExpCalculateUtils {
+public class Calculator {
 
-    static Logger logger = LoggerFactory.getLogger(ExpCalculateUtils.class);
+    static Logger logger = LoggerFactory.getLogger(Calculator.class);
 
     /**
      * 计算
@@ -142,14 +142,6 @@ public class ExpCalculateUtils {
         return nodeList;
     }
 
-    private static String convert2String(List<Character> data) {
-        char[] chars = new char[data.size()];
-        for (int i = 0; i < data.size(); i++) {
-            chars[i] = data.get(i);
-        }
-        return String.valueOf(chars);
-    }
-
     /**
      * 中缀表达式转后缀表达式
      * <p>
@@ -204,7 +196,7 @@ public class ExpCalculateUtils {
     /**
      * 中缀表达式转后缀表达式
      */
-    private static void doGenerate(Node node,List<Node> suffixList,Stack<Node> opStack){
+    private static void doGenerate(Node node, List<Node> suffixList, Stack<Node> opStack) {
         if (NodeType.NUMERICAL.equals(node.getType())) {
             // 如果是操作数，将其压入到栈中
             suffixList.add(node);
@@ -278,32 +270,6 @@ public class ExpCalculateUtils {
     }
 
     /**
-     * 根据后缀表达式计算值
-     * <p>
-     * 从左至右扫描表达式
-     * 遇到数字时，将数字压入堆栈
-     * 遇到运算符时，弹出栈顶的两个数，用运算符对它们做相应的计算（次顶元素 op 栈顶元素），并将结果入栈；
-     * 重复上述过程直到表达式最右端，最后运算得出的值即为表达式的结果
-     */
-    public static BigDecimal calculateBySuffixExp(Node[] nodes) {
-        Stack<BigDecimal> result = new Stack<>();
-        for (Node node : nodes) {
-            if (NodeType.NUMERICAL.equals(node.getType())) {
-                result.push(new BigDecimal(node.getExp()));
-            }
-            if (NodeType.OPERATOR.equals(node.getType())) {
-                BigDecimal top1 = result.pop();
-                BigDecimal top2 = result.pop();
-
-                // 运算次顶的元素和栈顶的元素
-                BigDecimal res = Operator.getByCode(node.getExp()).calculate(top2, top1);
-                result.push(res);
-            }
-        }
-        return result.pop();
-    }
-
-    /**
      * 表达式输出打印
      */
     public static String logNodes(List<Node> list) {
@@ -329,4 +295,16 @@ public class ExpCalculateUtils {
         }
         return builder.toString();
     }
+
+    /**
+     * 工具方法
+     */
+    private static String convert2String(List<Character> data) {
+        char[] chars = new char[data.size()];
+        for (int i = 0; i < data.size(); i++) {
+            chars[i] = data.get(i);
+        }
+        return String.valueOf(chars);
+    }
+
 }

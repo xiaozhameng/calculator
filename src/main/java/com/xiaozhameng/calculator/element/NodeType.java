@@ -1,10 +1,10 @@
-package com.xiaozhameng.calculator.ele;
+package com.xiaozhameng.calculator.element;
 
 import java.math.BigDecimal;
 
 /**
  * 元素类型
- * @author qiaofengjun
+ * @author xiaozhameng
  * @date 2020/09/26
  */
 public enum NodeType {

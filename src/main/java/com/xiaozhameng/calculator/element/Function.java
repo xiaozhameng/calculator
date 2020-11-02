@@ -1,6 +1,6 @@
-package com.xiaozhameng.calculator.ele;
+package com.xiaozhameng.calculator.element;
 
-import com.xiaozhameng.calculator.ExpCalculateUtils;
+import com.xiaozhameng.calculator.Calculator;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 定义内置函数
  *
- * @author qiaofengjun
+ * @author xiaozhameng
  * @date 2020/09/26
  */
 public enum Function {
@@ -24,7 +24,7 @@ public enum Function {
             throw new RuntimeException("参数格式非法，期望两个参数，请检查！");
         }
         List<Node> nodes = subs.get(0);
-        BigDecimal value = ExpCalculateUtils.calculate(nodes);
+        BigDecimal value = Calculator.calculate(nodes);
         String scale = subs.get(1).get(0).getExp();
         // 将第一个参数运行计算，然后使用第二个参数取整
         return value.setScale(Integer.parseInt(scale), BigDecimal.ROUND_HALF_UP);
@@ -39,7 +39,7 @@ public enum Function {
             throw new RuntimeException("参数格式非法，期望两个参数，请检查！");
         }
         List<Node> nodes = subs.get(0);
-        BigDecimal value = ExpCalculateUtils.calculate(nodes);
+        BigDecimal value = Calculator.calculate(nodes);
         String scale = subs.get(1).get(0).getExp();
         // 将第一个参数运行计算，然后使用第二个参数取整
         return value.setScale(Integer.parseInt(scale), BigDecimal.ROUND_DOWN);

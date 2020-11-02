@@ -1,11 +1,11 @@
-package com.xiaozhameng.calculator.ele;
+package com.xiaozhameng.calculator.element;
 
 import java.math.BigDecimal;
 
 /**
  * 功能描述：运算符
  *
- * @author: qiaofengjun
+ * @author: xiaozhameng
  * @date: 2020/9/24 5:00 下午
  */
 public enum Operator {

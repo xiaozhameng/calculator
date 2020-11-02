@@ -1,11 +1,9 @@
-package com.xiaozhameng.calculator.ele;
-
-import java.math.BigDecimal;
+package com.xiaozhameng.calculator.element;
 
 /**
  * 功能描述：变量，定义表达式中可以用到的变量
  *
- * @author: qiaofengjun
+ * @author: xiaozhameng
  * @date: 2020/9/24 3:34 下午
  */
 public enum Variable {
@@ -13,25 +11,19 @@ public enum Variable {
     /**
      * 应还本金
      */
-    DUE_AMOUNT("DUE_AMOUNT", "应还本金", (metaData -> {
-        return BigDecimal.ZERO;
-    })),
+    DUE_AMOUNT("DUE_AMOUNT", "应还本金"),
 
     /**
      * 逾期费利率
      */
-    OVERDUE_RATE("OVERDUE_RATE", "逾期费利率", (metaData -> {
-        return BigDecimal.ZERO;
-    }));
+    OVERDUE_RATE("OVERDUE_RATE", "逾期费利率");
 
     String code;
     String desc;
-    Resolver resolver;
 
-    Variable(String code, String desc, Resolver resolver) {
+    Variable(String code, String desc) {
         this.code = code;
         this.desc = desc;
-        this.resolver = resolver;
     }
 
     /**
@@ -47,18 +39,4 @@ public enum Variable {
         }
         return false;
     }
-
-    /**
-     * 遍历赋值器
-     */
-    private interface Resolver {
-        /**
-         * 解析接口
-         *
-         * @param metaData 元数据
-         * @return 返回值
-         */
-        BigDecimal resolve(SelectorMetaData metaData);
-    }
-
 }
