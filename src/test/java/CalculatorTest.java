@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.xiaozhameng.calculator.Calculator.*;
+import static com.xiaozhameng.calculator.ExpressionParser.*;
 
 /**
  * 功能描述：java 代码解决表达式
@@ -37,7 +38,7 @@ public class CalculatorTest {
         for (String exp : checkMap.keySet()) {
             log.info("***********************");
             log.info("原表达式 = {}", exp);
-            ArrayList<Node> nodes = resolveExp(exp);
+            ArrayList<Node> nodes = parseExp(exp);
             log.info("原表达式解析之后 = {}", logNodes(nodes));
             List<Node> suffixExp = generateSuffixExp(nodes);
             log.info("生成的后缀表达式 ={}", logNodes(suffixExp));
@@ -62,7 +63,7 @@ public class CalculatorTest {
 
         for (String exp : checkMap.keySet()) {
             log.info("***********************");
-            ArrayList<Node> nodes = resolveExp(exp);
+            ArrayList<Node> nodes = parseExp(exp);
             BigDecimal val = calculate(nodes);
             log.info("表达式计算值 = {}, 期望值 = {}", val, checkMap.get(exp));
         }
@@ -72,7 +73,7 @@ public class CalculatorTest {
     public void testCalculator() {
         String exp = "ROUND(1000*ROUND(0.7/360,7)*1.5*29,2)";
         log.info("原始表达式 = {}", exp);
-        ArrayList<Node> nodes = resolveExp(exp);
+        ArrayList<Node> nodes = parseExp(exp);
         log.info("转换后表达式 = {}", logNodes(nodes));
         BigDecimal calculate = calculate(nodes);
         log.info("*****计算结束*****, result = {}", calculate);
