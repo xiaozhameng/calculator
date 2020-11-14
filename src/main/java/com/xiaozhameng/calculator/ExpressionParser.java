@@ -30,18 +30,7 @@ public class ExpressionParser {
             boolean match = Mark.match(c) || Operator.match(c);
             if (match) {
                 // 如果匹配了，先把队列中的字符拼成一个node，然后紧接着拼接上匹配字符
-                if (!temp.isEmpty()) {
-                    String subExp = convert2String(temp);
-                    // 需要立即将temp 清空
-                    temp.clear();
-                    NodeType nodeType = NodeType.checkType(subExp);
-                    Node node = Node.builder()
-                            .exp(subExp)
-                            .type(nodeType)
-                            .build();
-                    nodeList.add(node);
-                }
-
+                doMatchProcess(nodeList, temp);
                 Node markNode = Node.builder()
                         .exp(String.valueOf(c))
                         .type(NodeType.checkType(String.valueOf(c)))
@@ -51,6 +40,14 @@ public class ExpressionParser {
             }
             temp.add(c);
         }
+        doMatchProcess(nodeList, temp);
+        return nodeList;
+    }
+
+    /**
+     * 处理匹配节点
+     */
+    private static void doMatchProcess(ArrayList<Node> nodeList, List<Character> temp) {
         if (!temp.isEmpty()) {
             String subExp = convert2String(temp);
             // 需要立即将temp 清空
@@ -62,7 +59,6 @@ public class ExpressionParser {
                     .build();
             nodeList.add(node);
         }
-        return nodeList;
     }
 
     /**
