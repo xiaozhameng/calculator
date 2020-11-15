@@ -44,7 +44,7 @@ public class Calculator {
                             temp.push(stack.pop());
                         }
                         // 如果是紧邻函数名称的左括号，函数名称也加入到临时栈'
-                        if (!stack.isEmpty() && Function.funcCheck(stack.peek().getExp())) {
+                        if (!stack.isEmpty() && stack.peek().isFunc()) {
                             temp.push(stack.pop());
                         }
                         break;
@@ -52,19 +52,17 @@ public class Calculator {
                     temp.push(stack.pop());
                 }
 
-                logger.info("生成临时栈时，原栈数据 = {}, 临时temp栈 = {}", logNodes(stack), logNodes(temp));
-
+                logger.info("生成最小计算单元的临时栈时，原栈数据 = {}, \t临时temp栈 = {}", logNodes(stack), logNodes(temp));
                 // 因为temp 里面的元素是按照出栈的顺序入队的，所以
                 Node[] sub = new Node[temp.size()];
                 while (!temp.isEmpty()) {
                     sub[(sub.length - 1) - (temp.size() - 1)] = temp.pop();
                 }
-
                 List<Node> subList = Arrays.asList(sub);
-                logger.info("临时sub队列 = {}", logNodes(subList));
+                logger.info("生成最小计算单元的临时sub队列 = {}", logNodes(subList));
 
                 // 开始计算 判断sub 子集是不是一个函数，如果是函数，直接将子集交给对应的函数，如果是一个表达式，则直接计算
-                if (Function.funcCheck(subList.get(0).getExp())) {
+                if (subList.get(0).isFunc()) {
                     logger.info("子集合是一个函数，交给函数计算，表达式 = {}", logNodes(subList));
                     Function function = Function.getByCode(subList.get(0).getExp());
                     BigDecimal val = function.getCalculate().calculate(subList);
@@ -73,7 +71,6 @@ public class Calculator {
                             .exp(val.toString())
                             .type(NodeType.NUMERICAL).build();
                     stack.push(tempNode);
-                    logger.info("计算结果入栈 = {}", logNodes(stack));
                 } else {
                     logger.info("子集合是一个表达式 = {}， 直接调用计算即可", logNodes(subList));
                     BigDecimal val = calculateBySuffixExp(generateSuffixExp(subList));
@@ -82,8 +79,8 @@ public class Calculator {
                             .exp(val.toString())
                             .type(NodeType.NUMERICAL).build();
                     stack.push(tempNode);
-                    logger.info("计算结果入栈 = {}", logNodes(stack));
                 }
+                logger.info("计算结果入栈 = {}", logNodes(stack));
             }
         }
 
@@ -105,10 +102,13 @@ public class Calculator {
     public static BigDecimal calculateBySuffixExp(List<Node> nodes) {
         Stack<BigDecimal> result = new Stack<>();
         for (Node node : nodes) {
-            if (NodeType.NUMERICAL.equals(node.getType())) {
+            if (node.isDate()){
+                throw new RuntimeException("日期格式的变量只支持嵌套在日期函数中进行计算");
+            }
+            if (node.isNumber()) {
                 result.push(new BigDecimal(node.getExp()));
             }
-            if (NodeType.OPERATOR.equals(node.getType())) {
+            if (node.isOperator()) {
                 BigDecimal top1 = result.pop();
                 BigDecimal top2 = result.pop();
 

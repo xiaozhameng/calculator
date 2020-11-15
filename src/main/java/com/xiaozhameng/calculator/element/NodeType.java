@@ -1,5 +1,7 @@
 package com.xiaozhameng.calculator.element;
 
+import com.xiaozhameng.calculator.utils.DateUtils;
+
 import java.math.BigDecimal;
 
 /**
@@ -21,6 +23,10 @@ public enum NodeType {
      */
     NUMERICAL,
     /**
+     * 日期
+     */
+    DATE,
+    /**
      * 操作符
      */
     OPERATOR,
@@ -31,6 +37,7 @@ public enum NodeType {
 
     /**
      * 根据字符序列给出类型
+     *
      * @param exp 字符序列
      */
     public static NodeType checkType(String exp) {
@@ -47,13 +54,13 @@ public enum NodeType {
             return OPERATOR;
         }
         // 函数
-        if (Function.funcCheck(exp)) {
+        if (isFunction(exp)) {
             return FUNCTION;
         }
 
-        // 变量
-        if (Variable.variableCheck(exp)) {
-            return VARIABLE;
+        // 日期
+        if (isDateType(exp)) {
+            return DATE;
         }
 
         // 数值：暴力一点，直接强转Decimal
@@ -61,7 +68,39 @@ public enum NodeType {
             new BigDecimal(exp);
             return NUMERICAL;
         } catch (Exception e) {
-            throw new RuntimeException("未知的元素类型，请检查你的输入，当前输入 = " + exp);
+            return VARIABLE;
+        }
+    }
+
+    private static boolean isFunction(String exp) {
+        if (exp == null || exp.trim().length() < 1) {
+            return false;
+        }
+        for (Function func : Function.values()) {
+            if (exp.toUpperCase().equals(func.code)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 日期格式
+     * 支持如下两种日期格式
+     * yyyyMMddHHmmss
+     * yyyyMMdd
+     */
+    private static boolean isDateType(String exp) {
+        try {
+            DateUtils.getDateFromString(exp, DateUtils.DATE_FORMAT_YYYYMMDDHHMMSS);
+            return true;
+        } catch (Exception e) {
+            try {
+                DateUtils.getDateFromString(exp, DateUtils.DATE_FORMAT_YYYYMMDD);
+                return true;
+            } catch (Exception ee) {
+                return false;
+            }
         }
     }
 }

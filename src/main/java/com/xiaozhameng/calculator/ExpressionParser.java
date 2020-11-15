@@ -19,10 +19,14 @@ public class ExpressionParser {
      * 解析表达式，例如： ROUND(DUE_AMOUNT*ROUND(0.07/360,6)*1.5*29,2)
      */
     public static ArrayList<Node> parseExp(String exp) {
-        // 将表达式中的空元素移除
+        // 将表达式中的空元素移除 ## 中文标点替换，中文括号替换
         exp = exp.trim()
                 .replaceAll("\t", "")
-                .replaceAll(" ", "");
+                .replaceAll(" ", "")
+                .replaceAll("，", ",")
+                .replaceAll("（", "(")
+                .replaceAll("）", ")");
+
         ArrayList<Node> nodeList = new ArrayList<>();
         List<Character> temp = new LinkedList<>();
         for (int i = 0; i < exp.length(); i++) {
@@ -116,10 +120,10 @@ public class ExpressionParser {
      * 中缀表达式转后缀表达式
      */
     private static void doGenerate(Node node, List<Node> suffixList, Stack<Node> opStack) {
-        if (NodeType.NUMERICAL.equals(node.getType())) {
+        if (node.isNumber() || node.isDate()) {
             // 如果是操作数，将其压入到栈中
             suffixList.add(node);
-        } else if (NodeType.OPERATOR.equals(node.getType())) {
+        } else if (node.isOperator()) {
             if (opStack.isEmpty()
                     || opStack.peek().getExp().equals(String.valueOf(Mark.LEFT_BRACE.getCode()))) {
                 // 如果运算符栈为空，或者栈顶元素是左括号，则将该运算符入栈
@@ -144,7 +148,7 @@ public class ExpressionParser {
                 }
             }
             opStack.push(node);
-        } else if (NodeType.MARK.equals(node.getType())) {
+        } else if (node.isMark()) {
             if (Mark.LEFT_BRACE.equals(Mark.getByCode(node.getExp()))) {
                 opStack.push(node);
             } else if (Mark.RIGHT_BRACE.equals(Mark.getByCode(node.getExp()))) {
